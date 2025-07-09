@@ -181,6 +181,68 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/Sim/v1/activity/evm/{address}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get EVM activity for a given address
+     * @description This endpoint returns a chronological feed of onchain activity including native transfers, ERC20 movements, NFT transfers, and decoded contract interactions.
+     */
+    get: operations["getEvmActivity"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+
+  "/Sim/v1/collectibles/evm/{address}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get EVM NFT collectibles for a given address
+     * @description This endpoint returns NFT collections (ERC721 and ERC1155 tokens) owned by a wallet address with token IDs, metadata, and basic token attributes.
+     */
+    get: operations["getEvmCollectibles"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+
+  "/Sim/v1/token-holders/evm/{chain_id}/{token_address}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get EVM token holders for a specific token
+     * @description This endpoint returns token distribution across ERC20 or ERC721 holders for a specific token contract, ranked by wallet value.
+     */
+    get: operations["getEvmTokenHolders"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -330,6 +392,80 @@ export interface components {
     TransactionsSvmResponse: {
       next_offset?: string;
       transactions: components["schemas"]["Transaction"][];
+    };
+    ActivityData: {
+      type: 'send' | 'receive' | 'call';
+      from: string;
+      to: string;
+      value?: string;
+      /** Format: int64 */
+      chain_id: number;
+      chain: string;
+      block_time: string;
+      token_metadata?: {
+        symbol: string;
+        /** Format: int32 */
+        decimals: number;
+        name?: string | null;
+        logo?: string | null;
+      } | null;
+      function?: {
+        name: string;
+        inputs: components["schemas"]["Input"][];
+      } | null;
+    };
+
+    ActivityResponse: {
+      activity: components["schemas"]["ActivityData"][];
+      next_offset?: string;
+      request_time?: string | null;
+      response_time?: string | null;
+    };
+
+    CollectibleData: {
+      token_id: string;
+      contract_address: string;
+      /** Format: int64 */
+      chain_id: number;
+      chain: string;
+      token_standard: 'ERC721' | 'ERC1155';
+      balance: string;
+      metadata?: {
+        name?: string | null;
+        description?: string | null;
+        image?: string | null;
+        attributes?: Record<string, unknown>[] | null;
+      } | null;
+    };
+
+    CollectiblesResponse: {
+      collectibles: components["schemas"]["CollectibleData"][];
+      next_offset?: string;
+      request_time?: string | null;
+      response_time?: string | null;
+    };
+
+    TokenHolderData: {
+      address: string;
+      balance: string;
+      /** Format: double */
+      balance_usd?: number | null;
+      /** Format: double */
+      percentage?: number | null;
+    };
+
+    TokenHoldersResponse: {
+      holders: components["schemas"]["TokenHolderData"][];
+      next_offset?: string;
+      token_info: {
+        name: string;
+        symbol: string;
+        /** Format: int32 */
+        decimals: number;
+        total_supply: string;
+      };
+      request_time?: string | null;
+      response_time?: string | null;
     };
   };
   responses: never;
@@ -766,6 +902,164 @@ export interface operations {
       };
       /** @description Bad Request - The request could not be understood by the server due to malformed data */
       400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal Server Error - A generic error occurred on the server. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getEvmActivity: {
+    parameters: {
+      query?: {
+        /** @description The offset to paginate through result sets. This is a cursor being passed from the previous response, only use what the backend returns here. */
+        offset?: string | null;
+        /** @description Maximum number of activities to return */
+        limit?: number | null;
+      };
+      header: {
+        /** @description API key to access the service */
+        "X-Dune-Api-Key": string;
+      };
+      path: {
+        /** @description Wallet to get activity for */
+        address: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ActivityResponse"];
+        };
+      };
+      /** @description Bad Request - The request could not be understood by the server due to malformed data */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal Server Error - A generic error occurred on the server. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getEvmCollectibles: {
+    parameters: {
+      query?: {
+        /** @description The offset to paginate through result sets. This is a cursor being passed from the previous response, only use what the backend returns here. */
+        offset?: string | null;
+        /** @description Maximum number of collectibles to return */
+        limit?: number | null;
+      };
+      header: {
+        /** @description API key to access the service */
+        "X-Dune-Api-Key": string;
+      };
+      path: {
+        /** @description Wallet to get collectibles for */
+        address: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CollectiblesResponse"];
+        };
+      };
+      /** @description Bad Request - The request could not be understood by the server due to malformed data */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Internal Server Error - A generic error occurred on the server. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getEvmTokenHolders: {
+    parameters: {
+      query?: {
+        /** @description The offset to paginate through result sets. This is a cursor being passed from the previous response, only use what the backend returns here. */
+        offset?: string | null;
+        /** @description Maximum number of holders to return */
+        limit?: number | null;
+      };
+      header: {
+        /** @description API key to access the service */
+        "X-Dune-Api-Key": string;
+      };
+      path: {
+        /** @description Chain ID of the token contract */
+        chain_id: string;
+        /** @description Token contract address */
+        token_address: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenHoldersResponse"];
+        };
+      };
+      /** @description Bad Request - The request could not be understood by the server due to malformed data */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
         headers: {
           [name: string]: unknown;
         };

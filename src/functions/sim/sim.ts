@@ -232,3 +232,97 @@ export async function getSVMTransactions(
   });
   return await response.json();
 }
+
+type EVMActivityParams = {
+  limit?: number; // maximum number of results to return
+  offset?: string; // pagination offset from previous response
+};
+
+export async function getEVMActivity(
+  address: string,
+  params: EVMActivityParams = {}
+) {
+  validateApiKey();
+  
+  const url = new URL(
+    `https://api.sim.dune.com/v1/evm/activity/${address}`
+  );
+
+  if (params.limit !== undefined) {
+    url.searchParams.append("limit", params.limit.toString());
+  }
+
+  if (params.offset) {
+    url.searchParams.append("offset", params.offset);
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      "X-Sim-Api-Key": SIM_API_KEY,
+    },
+  });
+  return await response.json();
+}
+
+type EVMCollectiblesParams = {
+  limit?: number; // maximum number of results to return
+  offset?: string; // pagination offset from previous response
+};
+
+export async function getEVMCollectibles(
+  address: string,
+  params: EVMCollectiblesParams = {}
+) {
+  validateApiKey();
+  
+  const url = new URL(
+    `https://api.sim.dune.com/v1/evm/collectibles/${address}`
+  );
+
+  if (params.limit !== undefined) {
+    url.searchParams.append("limit", params.limit.toString());
+  }
+
+  if (params.offset) {
+    url.searchParams.append("offset", params.offset);
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      "X-Sim-Api-Key": SIM_API_KEY,
+    },
+  });
+  return await response.json();
+}
+
+type EVMTokenHoldersParams = {
+  limit?: number; // maximum number of results to return
+  offset?: string; // pagination offset from previous response
+};
+
+export async function getEVMTokenHolders(
+  chain_id: string,
+  token_address: string,
+  params: EVMTokenHoldersParams = {}
+) {
+  validateApiKey();
+  
+  const url = new URL(
+    `https://api.sim.dune.com/v1/evm/token-holders/${chain_id}/${token_address}`
+  );
+
+  if (params.limit !== undefined) {
+    url.searchParams.append("limit", params.limit.toString());
+  }
+
+  if (params.offset) {
+    url.searchParams.append("offset", params.offset);
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      "X-Sim-Api-Key": SIM_API_KEY,
+    },
+  });
+  return await response.json();
+}

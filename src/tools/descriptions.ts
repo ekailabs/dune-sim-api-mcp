@@ -21,6 +21,18 @@ export const TOOL_DESCRIPTIONS = {
     listSupportedChainsTokenBalances: {
       title: "List Supported Chains (Balances)",
       description: "List all blockchain networks supported by the Sim Token Balances API. Returns an array of chain objects with chain IDs, names, and tags."
+    },
+    getEVMActivity: {
+      title: "Get EVM Activity",
+      description: "Retrieve a chronological feed of onchain activity for a wallet address. Returns native transfers, ERC20 movements, NFT transfers, and decoded contract interactions."
+    },
+    getEVMCollectibles: {
+      title: "Get EVM Collectibles",
+      description: "Retrieve NFT collections (ERC721 and ERC1155 tokens) owned by a wallet address. Returns collectibles with token IDs, metadata, and basic token attributes."
+    },
+    getEVMTokenHolders: {
+      title: "Get EVM Token Holders",
+      description: "Discover token distribution across ERC20 or ERC721 holders for a specific token contract. Returns holder addresses ranked by wallet value with balance information."
     }
   },
   svm: {

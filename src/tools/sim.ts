@@ -11,7 +11,10 @@ import {
   listSupportedChainsTransactions,
   listSupportedChainsTokenBalances,
   getSVMBalances,
-  getSVMTransactions
+  getSVMTransactions,
+  getEVMActivity,
+  getEVMCollectibles,
+  getEVMTokenHolders
 } from "../functions/sim/sim";
 
 // Helper function to handle API responses and errors
@@ -158,6 +161,85 @@ export const listSupportedChainsTokenBalancesTool: MCPTool = defineAPITool(
   []
 );
 
+export const getEVMActivityTool: MCPTool = defineAPITool(
+  {
+    name: "getEVMActivity",
+    description: TOOL_DESCRIPTIONS.evm.getEVMActivity.description,
+    title: TOOL_DESCRIPTIONS.evm.getEVMActivity.title,
+    callback: async (args) => {
+      try {
+        const result = await getEVMActivity(args.address, {
+          limit: args.limit,
+          offset: args.offset
+        });
+        return handleToolResult(result);
+      } catch (error: any) {
+        return handleToolResult({ error: error.message });
+      }
+    }
+  },
+  {
+    address: CommonProperties.address,
+    limit: CommonProperties.limit,
+    offset: CommonProperties.offset
+  },
+  ["address"]
+);
+
+export const getEVMCollectiblesTool: MCPTool = defineAPITool(
+  {
+    name: "getEVMCollectibles",
+    description: TOOL_DESCRIPTIONS.evm.getEVMCollectibles.description,
+    title: TOOL_DESCRIPTIONS.evm.getEVMCollectibles.title,
+    callback: async (args) => {
+      try {
+        const result = await getEVMCollectibles(args.address, {
+          limit: args.limit,
+          offset: args.offset
+        });
+        return handleToolResult(result);
+      } catch (error: any) {
+        return handleToolResult({ error: error.message });
+      }
+    }
+  },
+  {
+    address: CommonProperties.address,
+    limit: CommonProperties.limit,
+    offset: CommonProperties.offset
+  },
+  ["address"]
+);
+
+export const getEVMTokenHoldersTool: MCPTool = defineAPITool(
+  {
+    name: "getEVMTokenHolders",
+    description: TOOL_DESCRIPTIONS.evm.getEVMTokenHolders.description,
+    title: TOOL_DESCRIPTIONS.evm.getEVMTokenHolders.title,
+    callback: async (args) => {
+      try {
+        const result = await getEVMTokenHolders(args.chain_id, args.token_address, {
+          limit: args.limit,
+          offset: args.offset
+        });
+        return handleToolResult(result);
+      } catch (error: any) {
+        return handleToolResult({ error: error.message });
+      }
+    }
+  },
+  {
+    chain_id: {
+      type: "string",
+      description: "Blockchain chain ID (e.g., '1' for Ethereum mainnet)"
+    },
+    token_address: CommonProperties.contractAddress,
+    limit: CommonProperties.limit,
+    offset: CommonProperties.offset
+  },
+  ["chain_id", "token_address"]
+);
+
 // SVM Tools
 export const getSVMBalancesTool: MCPTool = defineAPITool(
   {
@@ -227,6 +309,9 @@ export const simTools: MCPTool[] = [
   getTokenPriceTool,
   listSupportedChainsTransactionsTool,
   listSupportedChainsTokenBalancesTool,
+  getEVMActivityTool,
+  getEVMCollectiblesTool,
+  getEVMTokenHoldersTool,
   getSVMBalancesTool,
   getSVMTransactionsTool
 ];
