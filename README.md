@@ -61,6 +61,9 @@ Then add to your Claude Desktop MCP configuration:
 - `getBalances` - Get token balances for EVM wallet addresses
 - `getEVMTransactions` - Get transaction history for EVM addresses
 - `getTokenPrice` - Get current USD prices for EVM tokens
+- `getEVMActivity` - Get detailed token activity (sends/receives) for EVM addresses
+- `getEVMCollectibles` - Get NFT holdings for EVM addresses
+- `getEVMTokenHolders` - Get list of holders for a specific EVM token
 - `listSupportedChainsTransactions` - List supported chains for transactions
 - `listSupportedChainsTokenBalances` - List supported chains for balances
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as SimApi from "./sim";
-import type { components } from "./Sim.types"; // Import generated types
+import type { components } from "./sim.types"; // Fix casing in import
 
 const mockSuccessResponse = { success: true, data: {} };
 
@@ -231,6 +231,180 @@ describe("Sim API Client", () => {
     });
   });
 
+  describe("getEVMActivity", () => {
+    const address = "0xWalletAddress";
+    const baseExpectedUrl = `https://api.sim.dune.com/v1/evm/activity/${address}`;
+    const mockActivityResponse: components["schemas"]["ActivityResponse"] = {
+      activity: [
+        {
+          type: "send",
+          from: address,
+          to: "0xRecipientAddress",
+          value: "1000000000000000000",
+          chain_id: 1,
+          chain: "ethereum",
+          block_time: "2024-05-18T09:32:32+00:00",
+          token_metadata: {
+            symbol: "ETH",
+            decimals: 18,
+            name: "Ethereum",
+            logo: null
+          }
+        }
+      ],
+      next_offset: "someOffsetString",
+      request_time: "2023-11-07T05:31:56Z",
+      response_time: "2023-11-07T05:31:56Z"
+    };
+
+    it("should call fetch with the correct base URL and headers", async () => {
+      await SimApi.getEVMActivity(address);
+      expectFetchCalledWithHeaders(baseExpectedUrl);
+    });
+
+    it("should correctly append limit and offset parameters", async () => {
+      const params = {
+        limit: 10,
+        offset: "someOffsetString"
+      };
+      await SimApi.getEVMActivity(address, params);
+
+      const expectedUrl = new URL(baseExpectedUrl);
+      expectedUrl.searchParams.append("limit", "10");
+      expectedUrl.searchParams.append("offset", "someOffsetString");
+
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expectedUrl.toString(),
+        expect.anything()
+      );
+    });
+
+    it("should return the parsed JSON response", async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockActivityResponse,
+      } as Response);
+
+      const result = await SimApi.getEVMActivity(address);
+      expect(result).toEqual(mockActivityResponse);
+    });
+  });
+
+  describe("getEVMCollectibles", () => {
+    const address = "0xNFTWallet";
+    const baseExpectedUrl = `https://api.sim.dune.com/v1/evm/collectibles/${address}`;
+    const mockCollectiblesResponse: components["schemas"]["CollectiblesResponse"] = {
+      collectibles: [
+        {
+          token_id: "1234",
+          contract_address: "0xNFTContract",
+          chain_id: 1,
+          chain: "ethereum",
+          token_standard: "ERC721",
+          balance: "1",
+          metadata: {
+            name: "Cool NFT #1234",
+            description: "A very cool NFT collection",
+            image: "https://example.com/nft/1234.png",
+            attributes: []
+          }
+        }
+      ],
+      next_offset: "nextPageOffset",
+      request_time: "2023-11-07T05:31:56Z",
+      response_time: "2023-11-07T05:31:56Z"
+    };
+
+    it("should call fetch with the correct base URL and headers", async () => {
+      await SimApi.getEVMCollectibles(address);
+      expectFetchCalledWithHeaders(baseExpectedUrl);
+    });
+
+    it("should correctly append limit and offset parameters", async () => {
+      const params = {
+        limit: 20,
+        offset: "nextPageOffset"
+      };
+      await SimApi.getEVMCollectibles(address, params);
+
+      const expectedUrl = new URL(baseExpectedUrl);
+      expectedUrl.searchParams.append("limit", "20");
+      expectedUrl.searchParams.append("offset", "nextPageOffset");
+
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expectedUrl.toString(),
+        expect.anything()
+      );
+    });
+
+    it("should return the parsed JSON response", async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockCollectiblesResponse,
+      } as Response);
+
+      const result = await SimApi.getEVMCollectibles(address);
+      expect(result).toEqual(mockCollectiblesResponse);
+    });
+  });
+
+  describe("getEVMTokenHolders", () => {
+    const chain_id = "1";
+    const token_address = "0xTokenContract";
+    const baseExpectedUrl = `https://api.sim.dune.com/v1/evm/token-holders/${chain_id}/${token_address}`;
+    const mockHoldersResponse: components["schemas"]["TokenHoldersResponse"] = {
+      holders: [
+        {
+          address: "0xHolderAddress",
+          balance: "1000000000000000000000",
+          balance_usd: 1842034.6622198338,
+          percentage: 0.1
+        }
+      ],
+      next_offset: "someOffsetString",
+      token_info: {
+        name: "Test Token",
+        symbol: "TEST",
+        decimals: 18,
+        total_supply: "10000000000000000000000"
+      },
+      request_time: "2023-11-07T05:31:56Z",
+      response_time: "2023-11-07T05:31:56Z"
+    };
+
+    it("should call fetch with the correct base URL and headers", async () => {
+      await SimApi.getEVMTokenHolders(chain_id, token_address);
+      expectFetchCalledWithHeaders(baseExpectedUrl);
+    });
+
+    it("should correctly append limit and offset parameters", async () => {
+      const params = {
+        limit: 50,
+        offset: "someOffsetString"
+      };
+      await SimApi.getEVMTokenHolders(chain_id, token_address, params);
+
+      const expectedUrl = new URL(baseExpectedUrl);
+      expectedUrl.searchParams.append("limit", "50");
+      expectedUrl.searchParams.append("offset", "someOffsetString");
+
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expectedUrl.toString(),
+        expect.anything()
+      );
+    });
+
+    it("should return the parsed JSON response", async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockHoldersResponse,
+      } as Response);
+
+      const result = await SimApi.getEVMTokenHolders(chain_id, token_address);
+      expect(result).toEqual(mockHoldersResponse);
+    });
+  });
+
   describe("listSupportedChainsTransactions", () => {
     const expectedUrl = `https://api.sim.dune.com/v1/evm/transactions/chains`;
     const mockSupportedChainsTxResponse: components["schemas"]["ChainsResponse"] =
@@ -357,7 +531,7 @@ describe("Sim API Client", () => {
 
   describe("getSVMTransactions", () => {
     const address = "So1anaTxAddress";
-    const baseExpectedUrl = `https://api.sim.dune.com/beta/transactions/svm/${address}`;
+    const baseExpectedUrl = `https://api.sim.dune.com/beta/svm/transactions/${address}`;
     const mockSvmTxResponse: components["schemas"]["TransactionsSvmResponse"] =
       {
         transactions: [
